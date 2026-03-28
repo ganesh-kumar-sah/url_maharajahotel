@@ -1,0 +1,34 @@
+[
+  {
+    "bookingId": "BK-1773235853763",
+    "tableName": "Romantic Dinner (2 Pax)",
+    "guest": "anushka",
+    "email": "aryanmdbraj@gmail.com",
+    "date": "2024-11-15",
+    "status": "Completed"
+  },
+  {
+    "bookingId": "BK-1773237741236",
+    "tableName": "Family Booth (6 Pax)",
+    "guest": "anushka",
+    "email": "aryanmdbraj@gmail.com",
+    "date": "2024-12-20",
+    "status": "Completed"
+  },
+  {
+    "bookingId": "BK-1773240246213",
+    "tableName": "Romantic Dinner (2 Pax)",
+    "guest": "anushka",
+    "email": "aryanmdbraj@gmail.com",
+    "date": "2024-11-15",
+    "status": "Completed"
+  },
+  {
+    "bookingId": "BK-1773641305184",
+    "tableName": "Family Booth (6 Pax)",
+    "guest": "Ganesh kumar sah",
+    "email": "aryanmdbraj@gmail.com",
+    "date": "2024-12-20",
+    "status": "Completed"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemailer": "^8.0.2",
+    "qrcode": "^1.5.4"
+  },
+  "name": "my1project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "events.js",
+  "devDependencies": {},
+  "scripts": {
+    "dev": "node --watch sec.js",
+    "start": "node sec.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
