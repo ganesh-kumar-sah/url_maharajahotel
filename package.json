@@ -7,7 +7,7 @@
   "name": "my1project",
   "version": "1.0.0",
   "description": "",
-  "main": "events.js",
+  "main": "sec.js",
   "devDependencies": {},
   "scripts": {
     "dev": "node --watch sec.js",
