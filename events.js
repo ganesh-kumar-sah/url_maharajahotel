@@ -85,14 +85,15 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
 
         /* Guest Styles */
         :root {
-            --primary-gold: #b1944e;
-            --text-dark: #1a1a1a;
-            --text-light: #ffffff;
+            --primary-gold: #C5A059;
+            --text-dark: #2C2C2C;
+            --text-light: #FAF9F6;
             --bg-warm: #f9f7f2;
             --bg-beige: #ebe4d6;
             --serif-font: 'Playfair Display', serif;
             --sans-font: 'Montserrat', sans-serif;
         }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--serif-font); }
         .guest { background: var(--bg-warm); color: var(--text-dark); font-family: var(--sans-font); }
         .guest .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--primary-gold); padding-bottom: 20px; }
         .guest .header h1 { font-weight: 300; font-size: 2.5em; color: var(--text-dark); margin: 0 0 15px 0; font-family: var(--serif-font); text-transform: uppercase; letter-spacing: 2px; }
@@ -102,11 +103,14 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
         .guest h1, .guest h2, .guest h3 { font-family: var(--serif-font); font-weight: 300; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dark); }
         .guest h3 { margin-top: 0; }
         .guest span { color: var(--primary-gold) !important; background: transparent !important; font-size: 1.2em; font-weight: bold; }
-        .guest button { background: var(--primary-gold); color: white; border: none; padding: 12px 25px; border-radius: 0; cursor: pointer; font-weight: 400; transition: all 0.3s ease; margin-right: 5px; text-transform: uppercase; letter-spacing: 1px; font-family: var(--sans-font); font-size: 0.85em; }
-        .guest button:hover { background: #9c8040; transform: none; }
+        .guest button { border-radius: 2px; background: var(--primary-gold); color: var(--text-light); border: none; padding: 12px 25px; cursor: pointer; font-weight: 500; transition: all 0.4s ease-in-out; margin-right: 5px; text-transform: uppercase; letter-spacing: 1px; font-family: var(--sans-font); font-size: 0.85em; }
+        .guest button:hover { background: #ab8b4b; transform: none; }
         .guest .btn-secondary { background: var(--text-dark); }
         .guest a { text-decoration: none; color: inherit; }
         .guest input { border-radius: 0 !important; font-family: var(--sans-font); padding: 10px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* Ticket Styles */
 
@@ -177,6 +181,10 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
             <a href="/food/admin">🍔 Food Orders ${counts && counts.food > 0 ? `<span class="badge">${counts.food}</span>` : ''}</a>
             <a href="/hotels/admin">🏨 Hotel Bookings ${counts && counts.hotel > 0 ? `<span class="badge">${counts.hotel}</span>` : ''}</a>
             <a href="/events/admin" class="active">📅 Table Reservations ${counts && counts.event > 0 ? `<span class="badge">${counts.event}</span>` : ''}</a>
+            <a href="/admin/history">📜 Order History</a>
+            <a href="/gallery/admin">🖼️ Gallery</a>
+            <a href="/offers/admin">🎁 Offers</a>
+            <a href="/attractions/admin">📍 Attractions</a>
             <a href="/" target="_blank" style="margin-top: 40px; border: 1px solid rgba(255,255,255,0.1);">👀 Guest View</a>
         </div>
     </nav>
@@ -190,6 +198,20 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
     <script>
         const savedTheme = localStorage.getItem('adminTheme') || 'dark';
         document.body.classList.add(savedTheme);
+    </script>` : ''}
+    ${isGuest ? `
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
     </script>` : ''}
 </html>
 `;
@@ -212,7 +234,7 @@ router.get('/', (req, res) => {
     const tablesHtml = tables.map(table => {
         const isBooked = currentBookings.some(b => b.tableName === table.name && b.date === table.date && b.status !== 'Completed');
         return `
-        <div class="card">
+        <div class="card reveal">
             ${table.image ? `<img src="${table.image}" style="width:100%; height:180px; object-fit:cover; border-radius:10px 10px 0 0; margin: -35px -35px 20px -35px; width: calc(100% + 70px);">` : ''}
             <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3>${table.name}</h3>

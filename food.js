@@ -78,14 +78,15 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
 
         /* Guest Styles */
         :root {
-            --primary-gold: #b1944e;
-            --text-dark: #1a1a1a;
-            --text-light: #ffffff;
+            --primary-gold: #C5A059;
+            --text-dark: #2C2C2C;
+            --text-light: #FAF9F6;
             --bg-warm: #f9f7f2;
             --bg-beige: #ebe4d6;
             --serif-font: 'Playfair Display', serif;
             --sans-font: 'Montserrat', sans-serif;
         }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--serif-font); }
         .guest { background: var(--bg-warm); color: var(--text-dark); font-family: var(--sans-font); }
         .guest .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--primary-gold); padding-bottom: 20px; }
         .guest .header h1 { font-weight: 300; font-size: 2.5em; color: var(--text-dark); margin: 0; font-family: var(--serif-font); text-transform: uppercase; letter-spacing: 2px; }
@@ -99,10 +100,13 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
         .guest h3 { margin: 0 0 5px 0; font-size: 1.3em; }
         .guest .category { font-size: 0.75em; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 400; color: #555; }
         .guest .price { font-weight: 400; color: var(--primary-gold); font-size: 1.1em; margin-right: 15px; }
-        .guest button { background: var(--primary-gold); color: white; border: none; padding: 10px 20px; border-radius: 0; cursor: pointer; font-weight: 400; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8em; font-family: var(--sans-font); }
-        .guest button:hover { background: #9c8040; transform: none; }
+        .guest button { border-radius: 2px; background: var(--primary-gold); color: var(--text-light); border: none; padding: 10px 20px; cursor: pointer; font-weight: 500; transition: all 0.4s ease-in-out; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8em; font-family: var(--sans-font); }
+        .guest button:hover { background: #ab8b4b; transform: none; }
         .guest .back-btn { background: var(--text-dark); text-decoration: none; padding: 10px 20px; color: white; border-radius: 0; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
         .guest input[type="text"] { border-radius: 0 !important; font-family: var(--sans-font); }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="${isGuest ? `guest theme-${theme}` : 'admin'}">
@@ -121,6 +125,10 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
             <a href="/food/admin" class="active">🍔 Food Orders ${counts && counts.food > 0 ? `<span class="badge">${counts.food}</span>` : ''}</a>
             <a href="/hotels/admin">🏨 Hotel Bookings ${counts && counts.hotel > 0 ? `<span class="badge">${counts.hotel}</span>` : ''}</a>
             <a href="/events/admin">📅 Table Reservations ${counts && counts.event > 0 ? `<span class="badge">${counts.event}</span>` : ''}</a>
+            <a href="/admin/history">📜 Order History</a>
+            <a href="/gallery/admin">🖼️ Gallery</a>
+            <a href="/offers/admin">🎁 Offers</a>
+            <a href="/attractions/admin">📍 Attractions</a>
             <a href="/" target="_blank" style="margin-top: 40px; border: 1px solid rgba(255,255,255,0.1);">👀 Guest View</a>
         </div>
     </nav>
@@ -135,6 +143,20 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
         const savedTheme = localStorage.getItem('adminTheme') || 'dark';
         document.body.classList.add(savedTheme);
     </script>` : ''}
+    ${isGuest ? `
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>` : ''}
 </html>
 `;
 
@@ -146,7 +168,7 @@ router.get('/', (req, res) => {
     const rate = isNational ? 80 : 1;
 
     const menuHtml = menu.map(item => `
-        <div class="menu-item">
+        <div class="menu-item reveal">
             <div style="display:flex; align-items:center; gap:15px;">
                 ${item.image ? `<img src="${item.image}" style="width:70px; height:70px; border-radius:10px; object-fit:cover;">` : ''}
                 <div>

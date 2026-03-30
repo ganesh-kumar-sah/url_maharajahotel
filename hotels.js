@@ -77,35 +77,42 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
 
         /* Guest Styles */
         :root {
-            --primary-gold: #b1944e;
-            --text-dark: #1a1a1a;
-            --text-light: #ffffff;
+            --primary-gold: #C5A059;
+            --text-dark: #2C2C2C;
+            --text-light: #FAF9F6;
             --bg-warm: #f9f7f2;
             --bg-beige: #ebe4d6;
             --serif-font: 'Playfair Display', serif;
             --sans-font: 'Montserrat', sans-serif;
         }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--serif-font); }
         .guest { background: var(--bg-warm); color: var(--text-dark); font-family: var(--sans-font); }
         .guest .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--primary-gold); padding-bottom: 20px; }
         .guest .header h1 { font-weight: 300; font-size: 2.5em; color: var(--text-dark); margin: 0; font-family: var(--serif-font); text-transform: uppercase; letter-spacing: 2px; }
         
         .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        .guest .card { padding: 0; border-radius: 0; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s; height: 100%; border: none; }
-        .guest .card > div { padding: 30px; }
-        .guest .card > div:first-child { padding-bottom: 0; }
-        .guest .card img { border-radius: 0 !important; }
-        .guest .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .guest .card { padding: 0; border-radius: 0; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; border: none; overflow: hidden; height: 100%; }
+        .guest .card .img-wrapper { overflow: hidden; height: 200px; }
+        .guest .card img { border-radius: 0 !important; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease-in-out; }
+        .guest .card:hover img { transform: scale(1.05); }
+        .guest .card:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
         
         .guest h1, .guest h3 { font-family: var(--serif-font); font-weight: 300; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dark) !important; }
         .guest h3 { margin: 0 0 10px 0; font-size: 1.5em; }
         .guest p { margin: 0; opacity: 0.7; font-size: 0.95em; line-height: 1.6; }
         .guest .price { font-size: 1.2em; color: var(--primary-gold); font-weight: 400; }
         
-        .guest button { background: var(--primary-gold); color: white; border: none; padding: 12px 25px; border-radius: 0; cursor: pointer; font-size: 0.85em; transition: all 0.3s; font-weight: 400; width: 100%; margin-top: 20px; text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--sans-font); }
-        .guest button:hover { background: #9c8040; transform: none; }
+        .guest button { border-radius: 2px; transition: all 0.4s ease-in-out; }
+        .guest button:not(.book-btn) { background: var(--primary-gold); color: var(--text-light); border: none; padding: 12px 25px; cursor: pointer; font-size: 0.85em; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--sans-font); width: 100%; margin-top: 20px; }
+        .guest button:not(.book-btn):hover { background: #ab8b4b; }
+        .guest .book-btn { background: transparent; color: var(--text-dark); border: none; padding: 12px 25px; cursor: pointer; font-size: 0.85em; font-weight: 500; width: 100%; margin-top: 20px; text-transform: uppercase; letter-spacing: 1.5px; font-family: var(--sans-font); text-decoration: underline; text-underline-offset: 4px; }
+        .guest .book-btn:hover { background: var(--primary-gold); color: var(--text-light); text-decoration: none; }
         
         .guest .back-btn { background: var(--text-dark); text-decoration: none; padding: 10px 20px; color: white; border-radius: 0; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="${isGuest ? `guest theme-${theme}` : 'admin'}">
@@ -124,6 +131,10 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
             <a href="/food/admin">🍔 Food Orders ${counts && counts.food > 0 ? `<span class="badge">${counts.food}</span>` : ''}</a>
             <a href="/hotels/admin" class="active">🏨 Hotel Bookings ${counts && counts.hotel > 0 ? `<span class="badge">${counts.hotel}</span>` : ''}</a>
             <a href="/events/admin">📅 Table Reservations ${counts && counts.event > 0 ? `<span class="badge">${counts.event}</span>` : ''}</a>
+            <a href="/admin/history">📜 Order History</a>
+            <a href="/gallery/admin">🖼️ Gallery</a>
+            <a href="/offers/admin">🎁 Offers</a>
+            <a href="/attractions/admin">📍 Attractions</a>
             <a href="/" target="_blank" style="margin-top: 40px; border: 1px solid rgba(255,255,255,0.1);">👀 Guest View</a>
         </div>
     </nav>
@@ -138,6 +149,20 @@ const renderPage = (content, isGuest = true, theme = 'default', counts = { food:
         const savedTheme = localStorage.getItem('adminTheme') || 'dark';
         document.body.classList.add(savedTheme);
     </script>` : ''}
+    ${isGuest ? `
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>` : ''}
 </html>
 `;
 
@@ -151,18 +176,20 @@ router.get('/', (req, res) => {
     const roomsHtml = rooms.map(room => {
         const isBooked = req.app.locals.hotelBookings.some(b => b.roomName === room.name && b.status !== 'Completed');
         return `
-        <div class="card">
-            <div>
-                ${room.image ? `<img src="${room.image}" style="width:100%; height:200px; object-fit:cover; border-radius:10px; margin-bottom:15px;" alt="${room.name}">` : `<div style="background: #f0f4f8; height: 150px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: #cbd5e0; font-size: 3em;">🛏️</div>`}
+        <div class="card reveal">
+            <div class="img-wrapper">
+                ${room.image ? `<img src="${room.image}" alt="${room.name}">` : `<div style="background: #f0f4f8; height: 100%; display: flex; align-items: center; justify-content: center; color: #cbd5e0; font-size: 3em;">🛏️</div>`}
+            </div>
+            <div style="padding: 30px; flex-grow: 1; display: flex; flex-direction: column;">
                 <h3>${room.name}</h3>
                 <p>Experience the comfort of our <strong>${room.type}</strong> class rooms. Perfect for relaxation.</p>
-            </div>
-            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                <div class="price">${currency}${room.price * rate} / night</div>
-                ${isBooked ? 
-                    `<button style="background: #95a5a6; cursor: not-allowed; width:100%;" disabled>Booked</button>` : 
-                    `<a href="/hotels/book/${room.id}"><button>Book Now</button></a>`
-                }
+                <div style="margin-top: auto; border-top: 1px solid #eee; padding-top: 20px;">
+                    <div class="price">${currency}${room.price * rate} <span style="font-size: 0.6em; color: #777;">/ night</span></div>
+                    ${isBooked ? 
+                        `<button style="background: transparent; color: #95a5a6; cursor: not-allowed; text-decoration: none;" disabled>Booked</button>` : 
+                        `<a href="/hotels/book/${room.id}"><button class="book-btn">Book Now</button></a>`
+                    }
+                </div>
             </div>
         </div>
     `}).join('');
